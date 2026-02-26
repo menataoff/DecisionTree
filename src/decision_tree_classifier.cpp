@@ -58,14 +58,14 @@ std::unordered_map<int, int> DecisionTreeClassifier::merge_to_parent(
     return parent_counts;
 }
 
-std::pair<std::vector<int>, std::vector<int>> DecisionTreeClassifier::split_data(
+std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeClassifier::split_data(
     const std::vector<DataPoint<int>>& data,
-    const std::vector<int>& indices, int feature_index, double threshold) {
+    const std::vector<size_t>& indices, int feature_index, double threshold) {
 
-    std::vector<int> left_idx;
-    std::vector<int> right_idx;
+    std::vector<size_t> left_idx;
+    std::vector<size_t> right_idx;
 
-    for (int idx : indices) {
+    for (size_t idx : indices) {
         if (data[idx].features[feature_index] <= threshold) {
             left_idx.push_back(idx);
         } else {
@@ -78,7 +78,7 @@ std::pair<std::vector<int>, std::vector<int>> DecisionTreeClassifier::split_data
 
 std::unordered_map<int, int> DecisionTreeClassifier::calculate_class_counts(
         const std::vector<DataPoint<int>>& data,
-        const std::vector<int>& indices) const {
+        const std::vector<size_t>& indices) const {
 
     std::unordered_map<int, int> counts;
     for (int idx : indices) {
@@ -88,7 +88,7 @@ std::unordered_map<int, int> DecisionTreeClassifier::calculate_class_counts(
 }
 
 std::unordered_map<int, double> DecisionTreeClassifier::calculate_probabilities(
-    const std::vector<DataPoint<int>>& data, const std::vector<int>& indices) const {
+    const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const {
 
     if (indices.empty()) return {};
 
@@ -102,7 +102,7 @@ std::unordered_map<int, double> DecisionTreeClassifier::calculate_probabilities(
     return class_probabilities;
 }
 
-int DecisionTreeClassifier::get_majority_class_in_node(const std::vector<DataPoint<int>>& data, const std::vector<int>& indices) const {
+int DecisionTreeClassifier::get_majority_class_in_node(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const {
     if (indices.empty()) return 0;
 
     std::unordered_map<int, int> class_counts;
@@ -123,7 +123,7 @@ int DecisionTreeClassifier::get_majority_class_in_node(const std::vector<DataPoi
     return majority_class;
 }
 
-bool DecisionTreeClassifier::all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<int>& indices) const {
+bool DecisionTreeClassifier::all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const {
     if (indices.empty()) return true;
     int first_label = data[indices[0]].target;
     for (int idx : indices) {
@@ -134,7 +134,7 @@ bool DecisionTreeClassifier::all_same_class(const std::vector<DataPoint<int>>& d
     return true;
 }
 
-SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<int>& indices) const {
+SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const {
     SplitInfo best_split;
 
     if (indices.size() < 2) return best_split;
@@ -142,7 +142,7 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
     int num_features = static_cast<int>(data[0].features.size());
 
     for (size_t feature_idx = 0; feature_idx < num_features; ++feature_idx) {
-        std::vector<int> sorted_indices = indices;
+        std::vector<size_t> sorted_indices = indices;
 
 
         std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
@@ -201,7 +201,7 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
 }
 
 std::unique_ptr<Node<int>> DecisionTreeClassifier::build_tree(const std::vector<DataPoint<int>>& data,
-        const std::vector<int>& indices,
+        const std::vector<size_t>& indices,
         int depth, int total_samples) {
 
     auto probabilities = calculate_probabilities(data, indices);
@@ -411,8 +411,8 @@ void DecisionTreeClassifier::fit(const std::vector<DataPoint<int>>& data) {
         return;
     }
 
-    std::vector<int> indices(data.size());
-    for (int i = 0; i < data.size(); ++i) {
+    std::vector<size_t> indices(data.size());
+    for (size_t i = 0; i < data.size(); ++i) {
         indices[i] = i;
     }
 

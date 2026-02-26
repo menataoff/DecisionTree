@@ -77,12 +77,12 @@ double DecisionTreeRegressor::calculate_mae(const std::vector<double>& targets) 
     return result / n;
 }
 
-std::pair<std::vector<int>, std::vector<int>> DecisionTreeRegressor::split_data(
+std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeRegressor::split_data(
     const std::vector<DataPoint<double>>& data,
-    const std::vector<int>& indices, int feature_index, double threshold) {
+    const std::vector<size_t>& indices, int feature_index, double threshold) {
 
-    std::vector<int> left_idx;
-    std::vector<int> right_idx;
+    std::vector<size_t> left_idx;
+    std::vector<size_t> right_idx;
     left_idx.reserve(indices.size());
     right_idx.reserve(indices.size());
 
@@ -99,7 +99,7 @@ std::pair<std::vector<int>, std::vector<int>> DecisionTreeRegressor::split_data(
 
 std::vector<double> DecisionTreeRegressor::extract_targets(
     const std::vector<DataPoint<double> > &data,
-    const std::vector<int> &indices) {
+    const std::vector<size_t> &indices) {
     std::vector<double> targets;
     targets.reserve(indices.size());
     for (const size_t idx : indices) {
@@ -134,7 +134,7 @@ double DecisionTreeRegressor::calculate_split_quality(
     }
 }
 
-SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<double> > &data, const std::vector<int> &indices) const {
+SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<double> > &data, const std::vector<size_t> &indices) const {
     SplitInfo best_split;
 
     if (indices.size() < 2) return best_split;
@@ -146,7 +146,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
                           : calculate_mae(parent_targets);
 
     for (size_t feature_idx = 0; feature_idx < num_features; ++feature_idx) {
-        std::vector<int> sorted_indices = indices;
+        std::vector<size_t> sorted_indices = indices;
 
 
         std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
@@ -208,8 +208,8 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
                 double right_mean = right_sums / right_total;
                 right_quality = (right_sqsums / right_total) - (right_mean * right_mean);
             } else {
-                std::vector<int> left_indices(sorted_indices.begin(), sorted_indices.begin() + i + 1);
-                std::vector<int> right_indices(sorted_indices.begin() + i + 1, sorted_indices.end());
+                std::vector<size_t> left_indices(sorted_indices.begin(), sorted_indices.begin() + i + 1);
+                std::vector<size_t> right_indices(sorted_indices.begin() + i + 1, sorted_indices.end());
                 std::vector<double> left_targets = extract_targets(data, left_indices);
                 std::vector<double> right_targets = extract_targets(data, right_indices);
 
@@ -233,7 +233,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
 }
 
 std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vector<DataPoint<double>>& data,
-        const std::vector<int>& indices,
+        const std::vector<size_t>& indices,
         int depth, int total_samples) {
 
     std::vector<double> targets = extract_targets(data, indices);
@@ -511,7 +511,7 @@ void DecisionTreeRegressor::fit(const std::vector<DataPoint<double>>& data) {
         return;
     }
 
-    std::vector<int> indices(data.size());
+    std::vector<size_t> indices(data.size());
     for (int i = 0; i < data.size(); ++i) {
         indices[i] = i;
     }

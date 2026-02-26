@@ -81,17 +81,17 @@ private:
     double calculate_mae(const std::vector<double>& targets) const;
 
 
-    SplitInfo find_best_split(const std::vector<DataPoint<double>>& data, const std::vector<int>& indices) const;
+    SplitInfo find_best_split(const std::vector<DataPoint<double>>& data, const std::vector<size_t>& indices) const;
 
-    static std::pair<std::vector<int>, std::vector<int>> split_data(
+    static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(
         const std::vector<DataPoint<double>>& data,
-        const std::vector<int>& indices,
+        const std::vector<size_t>& indices,
         int feature_index,
         double threshold);
 
     static std::vector<double> extract_targets(
         const std::vector<DataPoint<double>>& data,
-        const std::vector<int>& indices);
+        const std::vector<size_t>& indices);
 
     double calculate_split_quality(
        const std::vector<double>& left_targets,
@@ -119,7 +119,7 @@ private:
 
     std::unique_ptr<Node<double>> build_tree(
         const std::vector<DataPoint<double>>& data,
-        const std::vector<int>& indices,
+        const std::vector<size_t>& indices,
         int depth, int total_samples);
 
     void cost_complexity_prune();

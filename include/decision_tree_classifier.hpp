@@ -121,19 +121,19 @@ private:
 
     std::unordered_map<int, int> calculate_class_counts(
         const std::vector<DataPoint<int>>& data,
-        const std::vector<int>& indices) const;
+        const std::vector<size_t>& indices) const;
 
-    SplitInfo find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<int>& indices) const;
+    SplitInfo find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
-    static std::pair<std::vector<int>, std::vector<int>> split_data(const std::vector<DataPoint<int>>& data,
-            const std::vector<int>& indices, int feature_index, double threshold);
+    static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(const std::vector<DataPoint<int>>& data,
+            const std::vector<size_t>& indices, int feature_index, double threshold);
 
     std::unordered_map<int, double> calculate_probabilities(const std::vector<DataPoint<int>>& data,
-        const std::vector<int>& indices) const;
+        const std::vector<size_t>& indices) const;
 
-    bool all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<int>& indices) const;
+    bool all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
-    int get_majority_class_in_node(const std::vector<DataPoint<int>>& data, const std::vector<int>& indices) const;
+    int get_majority_class_in_node(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
     std::pair<double, int> calculate_tree_error(Node<int>* node) const;
 
@@ -154,7 +154,7 @@ private:
 
     std::unique_ptr<Node<int>> build_tree(
         const std::vector<DataPoint<int>>& data,
-        const std::vector<int>& indices,
+        const std::vector<size_t>& indices,
         int depth, int total_samples);
 
     void cost_complexity_prune();
