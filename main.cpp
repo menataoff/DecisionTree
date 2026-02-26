@@ -683,37 +683,37 @@ void test_regression_pruning_stability() {
 }
 
 int main() {
-    // std::cout << "==================================================\n";
-    // std::cout << "CLASSIFICATION TESTS (10 tests)\n";
-    // std::cout << "==================================================\n\n";
-    //
-    Timer total_timer;
-    //
-    // test_classification_linear_separable();
-    // test_classification_multiclass();
-    // test_classification_pruning_effect();
-    // test_classification_feature_importance();
-    // test_classification_predict_proba();
-    // test_classification_entropy_vs_gini();
-    // test_classification_single_class();
-    // test_classification_small_dataset();
-    // test_classification_depth_limit();
-    // test_classification_pruning_stability();
-
     std::cout << "==================================================\n";
-    std::cout << "REGRESSION TESTS (10 tests)\n";
+    std::cout << "CLASSIFICATION TESTS (10 tests)\n";
     std::cout << "==================================================\n\n";
 
-    test_regression_linear();
-    test_regression_quadratic();
-    test_regression_mse_vs_mae();
-    test_regression_multidimensional();
-    test_regression_pruning_effect();
-    test_regression_constant_data();
-    test_regression_interaction_terms();
-    test_regression_min_samples_leaf();
-    test_regression_large_depth();
-    test_regression_pruning_stability();
+    Timer total_timer;
+
+    test_classification_linear_separable();
+    test_classification_multiclass();
+    test_classification_pruning_effect();
+    test_classification_feature_importance();
+    test_classification_predict_proba();
+    test_classification_entropy_vs_gini();
+    test_classification_single_class();
+    test_classification_small_dataset();
+    test_classification_depth_limit();
+    test_classification_pruning_stability();
+
+    // std::cout << "==================================================\n";
+    // std::cout << "REGRESSION TESTS (10 tests)\n";
+    // std::cout << "==================================================\n\n";
+    //
+    // test_regression_linear();
+    // test_regression_quadratic();
+    // test_regression_mse_vs_mae();
+    // test_regression_multidimensional();
+    // test_regression_pruning_effect();
+    // test_regression_constant_data();
+    // test_regression_interaction_terms();
+    // test_regression_min_samples_leaf();
+    // test_regression_large_depth();
+    // test_regression_pruning_stability();
 
     double total_time = total_timer.elapsed();
     std::cout << "==================================================\n";

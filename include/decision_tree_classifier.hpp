@@ -19,7 +19,7 @@ public:
         : Node<int>(node_error, sample_count),
           class_probabilities(class_probabilities)
     {
-        // ТВОЯ логика нахождения majority_class
+
         double max_prob = 0.0;
         for (const auto& [class_label, prob] : class_probabilities) {
             if (prob > max_prob) {
@@ -36,10 +36,10 @@ public:
           majority_class(majority_class),
           class_probabilities(class_probabilities) {}
 
-    virtual ~ClassificationNode() = default;
+    ~ClassificationNode() override = default;
 
-    virtual std::unordered_map<int, double> predict_proba(
-        const std::vector<double>& features) const = 0;
+    std::unordered_map<int, double> predict_proba(
+        const std::vector<double>& features) const override = 0;
 
     // Геттеры
     int get_majority_class() const { return majority_class; }
@@ -56,7 +56,7 @@ public:
 class ClassificationLeafNode : public ClassificationNode {
 public:
     ClassificationLeafNode(const std::unordered_map<int, double>& class_probabilities,
-                          int sample_count, double node_error)
+                          const int sample_count, const double node_error)
         : ClassificationNode(class_probabilities, sample_count, node_error) {}
 
     std::unordered_map<int, double> predict_proba(
@@ -114,25 +114,33 @@ class DecisionTreeClassifier : public DecisionTree<int> {
 private:
     ClassificationSplitCriterion criterion;
 
+    [[nodiscard("Should be used to calculate impurity")]]
     double calculate_impurity(const std::unordered_map<int, int>& class_counts, int total) const;
 
-    std::unordered_map<int, int> merge_to_parent(const std::unordered_map<int, int>& left_counts,
+    [[nodiscard("Should be used to merge to parent")]]
+    std::unordered_map<int, int> merge_to_parent(
+        const std::unordered_map<int, int>& left_counts,
         const std::unordered_map<int, int>& right_counts) const;
 
+    [[nodiscard("Should be used to calculate class counts")]]
     std::unordered_map<int, int> calculate_class_counts(
         const std::vector<DataPoint<int>>& data,
         const std::vector<size_t>& indices) const;
 
+    [[nodiscard("Should be used to find best split")]]
     SplitInfo find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
     static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(const std::vector<DataPoint<int>>& data,
             const std::vector<size_t>& indices, int feature_index, double threshold);
 
+    [[nodiscard("Should be used to calculate probabilities")]]
     std::unordered_map<int, double> calculate_probabilities(const std::vector<DataPoint<int>>& data,
         const std::vector<size_t>& indices) const;
 
+    [[nodiscard("Should be used to check is all same class")]]
     bool all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
+    [[nodiscard("Should be used to get majority class in node")]]
     int get_majority_class_in_node(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
     std::pair<double, int> calculate_tree_error(Node<int>* node) const;
@@ -159,7 +167,7 @@ private:
 
     void cost_complexity_prune();
 public:
-    DecisionTreeClassifier(int max_depth = 32,
+    explicit DecisionTreeClassifier(int max_depth = 32,
                           int min_samples_split = 5,
                           int min_samples_leaf = 2,
                           const std::string& string_criterion = "entropy",
@@ -167,6 +175,6 @@ public:
 
     void fit(const std::vector<DataPoint<int>>& data);
     void fit(const std::vector<std::vector<double>>& X, const std::vector<int>& y) override;
-    int get_n_leaves() const;
+    [[nodiscard("Should be used to get number of leaves")]] int get_n_leaves() const;
     void set_ccp_alpha(double new_alpha);
 };
