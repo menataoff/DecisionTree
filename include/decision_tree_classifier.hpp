@@ -115,17 +115,27 @@ private:
     ClassificationSplitCriterion criterion;
 
     [[nodiscard("Should be used to calculate impurity")]]
-    double calculate_impurity(const std::unordered_map<int, int>& class_counts, int total) const;
+    double calculate_impurity(const std::unordered_map<int, int>& class_counts, size_t total) const;
 
     [[nodiscard("Should be used to merge to parent")]]
-    std::unordered_map<int, int> merge_to_parent(
+    static std::unordered_map<int, int> merge_to_parent(
         const std::unordered_map<int, int>& left_counts,
-        const std::unordered_map<int, int>& right_counts) const;
+        const std::unordered_map<int, int>& right_counts);
 
     [[nodiscard("Should be used to calculate class counts")]]
-    std::unordered_map<int, int> calculate_class_counts(
+    static std::unordered_map<int, int> calculate_class_counts(
         const std::vector<DataPoint<int>>& data,
-        const std::vector<size_t>& indices) const;
+        const std::vector<size_t>& indices);
+
+    [[nodiscard("Should be used to calculate probabilities")]]
+    static std::unordered_map<int, double> calculate_probabilities(
+        const std::vector<DataPoint<int>>& data,
+        const std::vector<size_t>& indices);
+
+    [[nodiscard("Should be used to get majority class in node")]]
+    static int get_majority_class_in_node(
+        const std::vector<DataPoint<int>>& data,
+        const std::vector<size_t>& indices);
 
     [[nodiscard("Should be used to find best split")]]
     SplitInfo find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
@@ -133,37 +143,30 @@ private:
     static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(const std::vector<DataPoint<int>>& data,
             const std::vector<size_t>& indices, int feature_index, double threshold);
 
-    [[nodiscard("Should be used to calculate probabilities")]]
-    std::unordered_map<int, double> calculate_probabilities(const std::vector<DataPoint<int>>& data,
-        const std::vector<size_t>& indices) const;
-
     [[nodiscard("Should be used to check is all same class")]]
-    bool all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
+    static bool all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices);
 
-    [[nodiscard("Should be used to get majority class in node")]]
-    int get_majority_class_in_node(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
+    static std::pair<double, int> calculate_tree_error(Node<int>* node);
 
-    std::pair<double, int> calculate_tree_error(Node<int>* node) const;
-
-    std::pair<Node<int>*, double> find_global_weakest_link(
+    static std::pair<Node<int>*, double> find_global_weakest_link(
     Node<int>* node,
     Node<int>* current_best_node = nullptr,
-    double current_min_alpha = std::numeric_limits<double>::infinity()) const;
+    double current_min_alpha = std::numeric_limits<double>::infinity());
 
-    bool is_leaf_node(Node<int>* node) const;
+    static bool is_leaf_node(Node<int>* node);
 
-    void prune_node_to_leaf(ClassificationInternalNode* node_to_prune,
+    void prune_node_to_leaf(const ClassificationInternalNode* node_to_prune,
         Node<int>* parent,
         bool is_left_child);
 
-    int count_subtree_leaves(Node<int>* node) const;
+    static int count_subtree_leaves(Node<int>* node);
 
-    std::pair<Node<int>*, bool> find_parent(Node<int>* root, Node<int>* target) const;
+    static std::pair<Node<int>*, bool> find_parent(Node<int>* root, Node<int>* target);
 
     std::unique_ptr<Node<int>> build_tree(
         const std::vector<DataPoint<int>>& data,
         const std::vector<size_t>& indices,
-        int depth, int total_samples);
+        int depth, size_t total_samples);
 
     void cost_complexity_prune();
 public:
