@@ -24,7 +24,7 @@ public:
 
     virtual ~Node() = default;
 
-    virtual std::unordered_map<int, double> predict_proba(
+    [[nodiscard("Should be used to get proba")]] virtual std::unordered_map<int, double> predict_proba(
         const std::vector<double>& features) const
     {
         throw std::runtime_error("predict_proba not supported for this node type");
@@ -32,8 +32,8 @@ public:
 
     virtual TargetType predict(const std::vector<double>& features) const = 0;
 
-    double get_node_error() const { return node_error; }
-    int get_sample_count() const { return sample_count; }
+    [[nodiscard("Should be uded to get node error")]] double get_node_error() const { return node_error; }
+    [[nodiscard("Should be uded to get sample count")]] int get_sample_count() const { return sample_count; }
 };
 
 struct SplitInfo {
@@ -41,18 +41,18 @@ struct SplitInfo {
     double threshold;
     double information_gain;
     size_t split_position;
-    std::vector<int> sorted_indices;
+    std::vector<size_t> sorted_indices;
 
-    std::vector<int> get_left_indices() const {
-        return std::vector<int>(
+    [[nodiscard("Should be uded to get left indices")]] std::vector<size_t> get_left_indices() const {
+        return {
         sorted_indices.begin(),
-        sorted_indices.begin() + split_position + 1);
+        sorted_indices.begin() + static_cast<ptrdiff_t>(split_position) + 1};
     }
 
-    std::vector<int> get_right_indices() const {
-        return std::vector<int>(
-        sorted_indices.begin() + split_position + 1,
-        sorted_indices.end());
+    [[nodiscard("Should be uded to get right indices")]] std::vector<size_t> get_right_indices() const {
+        return {
+        sorted_indices.begin() + static_cast<ptrdiff_t>(split_position) + 1,
+        sorted_indices.end()};
     }
 
     SplitInfo() : feature_index(-1), threshold(0.0), information_gain(-1.0), split_position(0) {}
@@ -68,7 +68,7 @@ protected:
     std::vector<double> feature_importances;
     double ccp_alpha;
 public:
-    DecisionTree(int max_depth = 32,
+    explicit DecisionTree(int max_depth = 32,
                  int min_samples_split = 5,
                  int min_samples_leaf = 2,
                  double ccp_alpha = 0.0) :
@@ -88,6 +88,7 @@ public:
         return root->predict(features);
     }
 
+    [[nodiscard("Should be used to predict proba")]]
     std::unordered_map<int, double> predict_proba(const std::vector<double>& features) const {
         if (!root) {
             return {};
@@ -99,6 +100,7 @@ public:
         }
     }
 
+    [[nodiscard("Should be used to get feature importances")]]
     const std::vector<double>& get_feature_importances() const {
         return feature_importances;
     }
