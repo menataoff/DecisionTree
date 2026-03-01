@@ -29,8 +29,7 @@ public:
 
 class RegressionLeafNode : public RegressionNode {
 public:
-    //TODO: Поменять порядок аргументов на такой же как в родительском классе
-    RegressionLeafNode(double mean_value, double variance, int sample_count, double node_error) :
+    RegressionLeafNode(double node_error, int sample_count, double mean_value, double variance) :
     RegressionNode(node_error, sample_count, mean_value, variance) {}
 };
 
@@ -41,10 +40,10 @@ private:
     std::unique_ptr<RegressionNode> left_child;
     std::unique_ptr<RegressionNode> right_child;
 public:
-    RegressionInternalNode(int feature_index, double threshold,
-        std::unique_ptr<RegressionNode> left_child, std::unique_ptr<RegressionNode> right_child,
+    RegressionInternalNode(double node_error, int sample_count,
         double mean_value, double variance,
-        int sample_count, double node_error) :
+        int feature_index, double threshold,
+        std::unique_ptr<RegressionNode> left_child, std::unique_ptr<RegressionNode> right_child) :
     RegressionNode(node_error, sample_count, mean_value, variance),
     feature_index(feature_index), threshold(threshold),
     left_child(std::move(left_child)), right_child(std::move(right_child)) {}

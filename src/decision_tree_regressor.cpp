@@ -309,14 +309,14 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         throw std::runtime_error("Failed to cast node to RegressionNode");
     }
     return std::make_unique<RegressionInternalNode>(
+        node_error,
+        indices.size(),
+        node_value,
+        node_quality,
         feature_index,
         threshold,
         std::move(left_child),
-        std::move(right_child),
-        node_value,
-        node_quality,
-        indices.size(),
-        node_error
+        std::move(right_child)
     );
 }
 
@@ -544,7 +544,7 @@ int DecisionTreeRegressor::get_n_leaves() const {
     return count_subtree_leaves(root.get());
 }
 
-void DecisionTreeRegressor::set_ccp_alpha(double new_alpha) {
+void DecisionTreeRegressor::set_ccp_alpha(const double new_alpha) {
     ccp_alpha = new_alpha;
 }
 
