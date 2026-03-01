@@ -331,19 +331,6 @@ std::pair<Node<int>*, double> DecisionTreeClassifier::find_global_weakest_link(
 
     if (auto* internal_node = dynamic_cast<ClassificationInternalNode*>(node)) {
 
-        // const double R_t = node->get_node_error();
-        // auto [R_Tt, T_t] = calculate_tree_error(node);
-        //
-        // if (T_t <= 1) {
-        // } else {
-        //     double alpha = (R_t - R_Tt) / (T_t - 1);
-        //
-        //     if (alpha >= 0 && alpha < current_min_alpha) {
-        //         current_min_alpha = alpha;
-        //         current_best_node = node;
-        //     }
-        // }
-
         if (auto [R_Tt, T_t] = calculate_tree_error(node); T_t > 1) {
             const double R_t = node->get_node_error();
             if (const double alpha = (R_t - R_Tt) / (T_t - 1); alpha >= 0 && alpha < current_min_alpha) {

@@ -84,19 +84,19 @@ private:
     RegressionSplitCriterion criterion;
 
     [[nodiscard("Should be used to calculate mean value")]]
-    double calculate_mean_value(const std::vector<double>& targets) const;
+    static double calculate_mean_value(const std::vector<double>& targets);
 
     [[nodiscard("Should be used to calculate mean for squares")]]
-    double calculate_mean_value_of_squares(const std::vector<double>& targets) const;
+    static double calculate_mean_value_of_squares(const std::vector<double>& targets);
 
     [[nodiscard("Should be used to calculate variance")]]
-    double calculate_variance(const std::vector<double>& targets) const;
+    static double calculate_variance(const std::vector<double>& targets);
 
     [[nodiscard("Should be used to calculate median")]]
     static double calculate_median(const std::vector<double>& targets);
 
     [[nodiscard("Should be used to get threshold")]]
-    double calculate_mae(const std::vector<double>& targets) const;
+    static double calculate_mae(const std::vector<double>& targets);
 
     [[nodiscard("Should be used to find best split")]]
     SplitInfo find_best_split(const std::vector<DataPoint<double>>& data, const std::vector<size_t>& indices) const;
@@ -120,27 +120,27 @@ private:
     [[nodiscard("Should be used to calculate node quality")]]
     double calculate_node_quality(const std::vector<double>& targets) const;
 
-    std::pair<double, int> calculate_tree_error(Node<double>* node) const;
+    static std::pair<double, int> calculate_tree_error(Node<double>* node);
 
-    std::pair<Node<double>*, double> find_global_weakest_link(
+    static std::pair<Node<double>*, double> find_global_weakest_link(
     Node<double>* node,
     Node<double>* current_best_node = nullptr,
-    double current_min_alpha = std::numeric_limits<double>::infinity()) const;
+    double current_min_alpha = std::numeric_limits<double>::infinity());
 
-    bool is_leaf_node(Node<double>* node) const;
+    static bool is_leaf_node(Node<double>* node);
 
-    void prune_node_to_leaf(RegressionInternalNode* node_to_prune,
+    void prune_node_to_leaf(const RegressionInternalNode* node_to_prune,
         Node<double>* parent,
         bool is_left_child);
 
-    int count_subtree_leaves(Node<double>* node) const;
+    static int count_subtree_leaves(Node<double>* node);
 
-    std::pair<Node<double>*, bool> find_parent(Node<double>* root, Node<double>* target) const;
+    static std::pair<Node<double>*, bool> find_parent(Node<double>* root, Node<double>* target);
 
     std::unique_ptr<Node<double>> build_tree(
         const std::vector<DataPoint<double>>& data,
         const std::vector<size_t>& indices,
-        int depth, int total_samples);
+        int depth, size_t total_samples);
 
     void cost_complexity_prune();
 public:

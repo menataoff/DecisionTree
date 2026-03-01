@@ -3,7 +3,6 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
-#include <iostream>
 #include <numeric>
 
 DecisionTreeRegressor::DecisionTreeRegressor(int max_depth,
@@ -21,28 +20,28 @@ DecisionTreeRegressor::DecisionTreeRegressor(int max_depth,
     }
 }
 
-double DecisionTreeRegressor::calculate_mean_value(const std::vector<double>& targets) const {
+double DecisionTreeRegressor::calculate_mean_value(const std::vector<double>& targets) {
     if (targets.empty()) return 0.0;
 
     double result = 0.0;
     for (double target : targets) {
         result += target;
     }
-    return result / targets.size();
+    return result / static_cast<double>(targets.size());
 }
 
-double DecisionTreeRegressor::calculate_mean_value_of_squares(const std::vector<double>& targets) const {
+double DecisionTreeRegressor::calculate_mean_value_of_squares(const std::vector<double>& targets) {
     if (targets.empty()) return 0.0;
 
     double sum_sq = 0.0;
     for (double target : targets) {
         sum_sq += target * target;
     }
-    return sum_sq / targets.size();
+    return sum_sq / static_cast<double>(targets.size());
 }
 
 
-double DecisionTreeRegressor::calculate_variance(const std::vector<double>& targets) const {
+double DecisionTreeRegressor::calculate_variance(const std::vector<double>& targets) {
     if (targets.empty()) return 0.0;
 
     return calculate_mean_value_of_squares(targets) - calculate_mean_value(targets)*calculate_mean_value(targets);
@@ -53,7 +52,7 @@ double DecisionTreeRegressor::calculate_median(const std::vector<double>& target
 
     size_t n = targets.size();
     std::vector<double> sorted = targets;
-    std::sort(sorted.begin(), sorted.end());
+    std::ranges::sort(sorted);
 
     double median = 0.0;
     if (n % 2 == 0) {
@@ -64,7 +63,7 @@ double DecisionTreeRegressor::calculate_median(const std::vector<double>& target
     return median;
 }
 
-double DecisionTreeRegressor::calculate_mae(const std::vector<double>& targets) const {
+double DecisionTreeRegressor::calculate_mae(const std::vector<double>& targets) {
     if (targets.empty()) return 0.0;
 
     size_t n = targets.size();
@@ -74,7 +73,7 @@ double DecisionTreeRegressor::calculate_mae(const std::vector<double>& targets) 
     for (double target : targets) {
         result += std::abs(target - median);
     }
-    return result / n;
+    return result / static_cast<double>(n);
 }
 
 std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeRegressor::split_data(
@@ -86,7 +85,7 @@ std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeRegressor::split
     left_idx.reserve(indices.size());
     right_idx.reserve(indices.size());
 
-    for (int idx : indices) {
+    for (const size_t idx : indices) {
         if (data[idx].features[feature_index] <= threshold) {
             left_idx.push_back(idx);
         } else {
@@ -149,7 +148,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
         std::vector<size_t> sorted_indices = indices;
 
 
-        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
+        std::ranges::sort(sorted_indices, [&](size_t i, size_t j) {
             return (data[i].features[feature_idx] < data[j].features[feature_idx]);
         });
 
@@ -164,7 +163,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
 
 
         if (criterion == RegressionSplitCriterion::MSE) {
-            for (int idx : sorted_indices) {
+            for (size_t idx : sorted_indices) {
                 double target = data[idx].target;
                 right_sums += target;
                 right_sqsums += target * target;
@@ -208,8 +207,8 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
                 double right_mean = right_sums / right_total;
                 right_quality = (right_sqsums / right_total) - (right_mean * right_mean);
             } else {
-                std::vector<size_t> left_indices(sorted_indices.begin(), sorted_indices.begin() + i + 1);
-                std::vector<size_t> right_indices(sorted_indices.begin() + i + 1, sorted_indices.end());
+                std::vector<size_t> left_indices(sorted_indices.begin(), sorted_indices.begin() + static_cast<ptrdiff_t>(i) + 1);
+                std::vector<size_t> right_indices(sorted_indices.begin() + static_cast<ptrdiff_t>(i) + 1, sorted_indices.end());
                 std::vector<double> left_targets = extract_targets(data, left_indices);
                 std::vector<double> right_targets = extract_targets(data, right_indices);
 
@@ -234,7 +233,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
 
 std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vector<DataPoint<double>>& data,
         const std::vector<size_t>& indices,
-        int depth, int total_samples) {
+        int depth, size_t total_samples) {
 
     std::vector<double> targets = extract_targets(data, indices);
     double node_value;
@@ -244,7 +243,7 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         node_value = calculate_median(targets);  // Медиана для MAE
     }
     double node_quality = calculate_node_quality(targets);
-    double node_error = (static_cast<double>(indices.size()) / total_samples) * node_quality;
+    double node_error = (static_cast<double>(indices.size()) / static_cast<double>(total_samples)) * node_quality;
     if (node_quality < 1e-10) {  // почти нулевая дисперсия/MAE
         return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
     }
@@ -276,7 +275,7 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
     }
 
     if (!feature_importances.empty()) {
-        double weight = static_cast<double>(indices.size()) / total_samples;
+        double weight = static_cast<double>(indices.size()) / static_cast<double>(total_samples);
 
         // Для feature importances всегда используем снижение дисперсии
         std::vector<double> left_targets = extract_targets(data, left_indices);
@@ -287,7 +286,7 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         double left_var = calculate_variance(left_targets);
         double right_var = calculate_variance(right_targets);
 
-        double total_size = static_cast<double>(indices.size());
+        auto total_size = static_cast<double>(indices.size());
         double variance_reduction = parent_var -
                                    (static_cast<double>(left_targets.size())/total_size)*left_var -
                                    (static_cast<double>(right_targets.size())/total_size)*right_var;
@@ -297,8 +296,8 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         }
     }
 
-    auto left_child_ptr = build_tree(data, std::move(left_indices), depth + 1, total_samples);
-    auto right_child_ptr = build_tree(data, std::move(right_indices), depth + 1, total_samples);
+    auto left_child_ptr = build_tree(data, (left_indices), depth + 1, total_samples);
+    auto right_child_ptr = build_tree(data, (right_indices), depth + 1, total_samples);
 
     auto left_child = std::unique_ptr<RegressionNode>(
         dynamic_cast<RegressionNode*>(left_child_ptr.release()));
@@ -321,7 +320,7 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
     );
 }
 
-int DecisionTreeRegressor::count_subtree_leaves(Node<double>* node) const {
+int DecisionTreeRegressor::count_subtree_leaves(Node<double>* node) {
     if (node == nullptr) {
         return 0;
     }
@@ -337,15 +336,14 @@ int DecisionTreeRegressor::count_subtree_leaves(Node<double>* node) const {
     return 0;
 }
 
-std::pair<double, int> DecisionTreeRegressor::calculate_tree_error(Node<double>* node) const {
+std::pair<double, int> DecisionTreeRegressor::calculate_tree_error(Node<double>* node) {
     if (!node) return {0.0, 0};
 
     if (dynamic_cast<RegressionLeafNode*>(node) != nullptr) {
         return {node->get_node_error(), 1};
     }
 
-    if (dynamic_cast<RegressionInternalNode*>(node) != nullptr) {
-        RegressionInternalNode* internal_node = dynamic_cast<RegressionInternalNode*>(node);
+    if (auto* internal_node = dynamic_cast<RegressionInternalNode*>(node)) {
 
         auto left_error = calculate_tree_error(internal_node->get_left_child());
         auto right_error = calculate_tree_error(internal_node->get_right_child());
@@ -358,24 +356,18 @@ std::pair<double, int> DecisionTreeRegressor::calculate_tree_error(Node<double>*
 std::pair<Node<double>*, double> DecisionTreeRegressor::find_global_weakest_link(
     Node<double>* node,
     Node<double>* current_best_node,
-    double current_min_alpha) const {
+    double current_min_alpha) {
 
 
     if (node == nullptr || dynamic_cast<RegressionLeafNode*>(node) != nullptr) {
         return {current_best_node, current_min_alpha};
     }
 
-    if (dynamic_cast<RegressionInternalNode*>(node) != nullptr) {
-        RegressionInternalNode* internal_node = dynamic_cast<RegressionInternalNode*>(node);
+    if (auto* internal_node = dynamic_cast<RegressionInternalNode*>(node)) {
 
-        double R_t = node->get_node_error();
-        auto [R_Tt, T_t] = calculate_tree_error(node);
-
-        if (T_t <= 1) {
-        } else {
-            double alpha = (R_t - R_Tt) / (T_t - 1);
-
-            if (alpha >= 0 && alpha < current_min_alpha) {
+        if (auto [R_Tt, T_t] = calculate_tree_error(node); T_t <= 1) {
+            double R_t = node->get_node_error();
+            if (const double alpha = (R_t - R_Tt) / (T_t - 1); (alpha >= 0 && alpha < current_min_alpha)) {
                 current_min_alpha = alpha;
                 current_best_node = node;
             }
@@ -399,11 +391,11 @@ std::pair<Node<double>*, double> DecisionTreeRegressor::find_global_weakest_link
     return {current_best_node, current_min_alpha};
 }
 
-bool DecisionTreeRegressor::is_leaf_node(Node<double>* node) const {
+bool DecisionTreeRegressor::is_leaf_node(Node<double>* node) {
     return (dynamic_cast<RegressionLeafNode*>(node) != nullptr);
 }
 
-void DecisionTreeRegressor::prune_node_to_leaf(RegressionInternalNode* node_to_prune,
+void DecisionTreeRegressor::prune_node_to_leaf(const RegressionInternalNode* node_to_prune,
         Node<double>* parent,
         bool is_left_child) {
 
@@ -417,7 +409,7 @@ void DecisionTreeRegressor::prune_node_to_leaf(RegressionInternalNode* node_to_p
     auto new_leaf = std::make_unique<RegressionLeafNode>(median_or_mean_value, variance, sample_count, node_error);
 
     if (parent != nullptr) {
-        RegressionInternalNode* parent_internal = static_cast<RegressionInternalNode*>(parent);
+        auto* parent_internal = dynamic_cast<RegressionInternalNode*>(parent);
 
         if (is_left_child) {
             parent_internal->set_left_child(std::move(new_leaf));
@@ -429,12 +421,10 @@ void DecisionTreeRegressor::prune_node_to_leaf(RegressionInternalNode* node_to_p
     }
 }
 
-std::pair<Node<double>*, bool> DecisionTreeRegressor::find_parent(Node<double>* root, Node<double>* target) const {
+std::pair<Node<double>*, bool> DecisionTreeRegressor::find_parent(Node<double>* root, Node<double>* target) {
     if (root == nullptr || target == nullptr) return {nullptr, false};
 
-    if (dynamic_cast<RegressionInternalNode*>(root) != nullptr) {
-        RegressionInternalNode* internal = static_cast<RegressionInternalNode*>(root);
-
+    if (auto* internal = dynamic_cast<RegressionInternalNode*>(root)) {
         if (internal->get_left_child() == target) return {internal, true};
         if (internal->get_right_child() == target) return {internal, false};
 
@@ -450,7 +440,7 @@ std::pair<Node<double>*, bool> DecisionTreeRegressor::find_parent(Node<double>* 
 
 void DecisionTreeRegressor::cost_complexity_prune() {
     int iteration = 0;
-    const int MAX_ITERATIONS = 1024;
+    constexpr int MAX_ITERATIONS = 1024;
 
     while (!is_leaf_node(root.get()) && iteration < MAX_ITERATIONS) {
         iteration++;
@@ -462,7 +452,7 @@ void DecisionTreeRegressor::cost_complexity_prune() {
 
         auto [parent, is_left] = find_parent(root.get(), weakest_node);
 
-        prune_node_to_leaf(static_cast<RegressionInternalNode*>(weakest_node), parent, is_left);
+        prune_node_to_leaf(dynamic_cast<RegressionInternalNode*>(weakest_node), parent, is_left);
     }
 }
 
@@ -525,9 +515,9 @@ void DecisionTreeRegressor::fit(const std::vector<DataPoint<double>>& data) {
     }
 
     if (summary_importance > 0.0) {
-        for (size_t i = 0; i < feature_importances.size(); ++i) {
-            feature_importances[i] /= summary_importance;
-        }
+        std::ranges::for_each(feature_importances, [summary_importance](double& val) {
+            val /= summary_importance;
+        });
     }
 
     if (ccp_alpha > 0.0) {
