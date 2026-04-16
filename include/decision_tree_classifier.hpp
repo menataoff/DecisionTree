@@ -14,10 +14,10 @@ protected:
     int majority_class;
     std::unordered_map<int, double> class_probabilities;
 public:
-    ClassificationNode(const std::unordered_map<int, double>& class_probabilities,
-                      int sample_count, double node_error)
-        : Node<int>(node_error, sample_count),
-          class_probabilities(class_probabilities)
+    ClassificationNode(const std::unordered_map<int, double>& class_probabilities_val,
+                      int sample_count_val, double node_error_val)
+        : Node<int>(node_error_val, sample_count_val),
+          class_probabilities(class_probabilities_val)
     {
 
         double max_prob = 0.0;
@@ -29,17 +29,16 @@ public:
         }
     }
 
-    ClassificationNode(int majority_class,
-                      const std::unordered_map<int, double>& class_probabilities,
-                      int sample_count, double node_error)
-        : Node<int>(node_error, sample_count),
-          majority_class(majority_class),
-          class_probabilities(class_probabilities) {}
+    ClassificationNode(int majority_class_val,
+                      const std::unordered_map<int, double>& class_probabilities_val,
+                      int sample_count_val, double node_error_val)
+        : Node<int>(node_error_val, sample_count_val),
+          majority_class(majority_class_val),
+          class_probabilities(class_probabilities_val) {}
 
     ~ClassificationNode() override = default;
 
-    std::unordered_map<int, double> predict_proba(
-        const std::vector<double>& features) const override = 0;
+    std::unordered_map<int, double> predict_proba([[maybe_unused]]const std::vector<double>& features) const override = 0;
 
     // Геттеры
     int get_majority_class() const { return majority_class; }
@@ -48,37 +47,36 @@ public:
     }
 
     // Базовый predict (можно переопределить)
-    int predict(const std::vector<double>& features) const override {
+    int predict([[maybe_unused]]const std::vector<double>& features) const override {
         return majority_class;
     }
 };
 
 class ClassificationLeafNode : public ClassificationNode {
 public:
-    ClassificationLeafNode(const std::unordered_map<int, double>& class_probabilities,
-                          const int sample_count, const double node_error)
-        : ClassificationNode(class_probabilities, sample_count, node_error) {}
+    ClassificationLeafNode(const std::unordered_map<int, double>& class_probabilities_val,
+                          const int sample_count_val, const double node_error_val)
+        : ClassificationNode(class_probabilities_val, sample_count_val, node_error_val) {}
 
-    std::unordered_map<int, double> predict_proba(
-        const std::vector<double>& features) const override {
+    std::unordered_map<int, double> predict_proba([[maybe_unused]] const std::vector<double>& features) const override {
         return class_probabilities;
     }
 };
 
 class ClassificationInternalNode : public ClassificationNode {
 private:
-    int feature_index;
+    size_t feature_index;
     double threshold;
     std::unique_ptr<ClassificationNode> left_child;
     std::unique_ptr<ClassificationNode> right_child;
 public:
-    ClassificationInternalNode(int feature_index, double threshold,
-        std::unique_ptr<ClassificationNode> left_child, std::unique_ptr<ClassificationNode> right_child,
-        int majority_class, const std::unordered_map<int, double>& class_probabilities,
-        int sample_count, double node_error) :
-    ClassificationNode(majority_class, class_probabilities, sample_count, node_error),
-    feature_index(feature_index), threshold(threshold),
-    left_child(std::move(left_child)), right_child(std::move(right_child)) {}
+    ClassificationInternalNode(size_t feature_index_val, double threshold_val,
+        std::unique_ptr<ClassificationNode> left_child_val, std::unique_ptr<ClassificationNode> right_child_val,
+        int majority_class_val, const std::unordered_map<int, double>& class_probabilities_val,
+        int sample_count_val, double node_error_val) :
+    ClassificationNode(majority_class_val, class_probabilities_val, sample_count_val, node_error_val),
+    feature_index(feature_index_val), threshold(threshold_val),
+    left_child(std::move(left_child_val)), right_child(std::move(right_child_val)) {}
 
     void set_left_child(std::unique_ptr<ClassificationNode> new_child) {
         left_child = std::move(new_child);
@@ -90,7 +88,7 @@ public:
 
     ClassificationNode* get_left_child() const { return left_child.get(); }
     ClassificationNode* get_right_child() const { return right_child.get(); }
-    int get_feature_index() const {return feature_index;}
+    size_t get_feature_index() const {return feature_index;}
     double get_threshold() const {return threshold;}
 
     int predict(const std::vector<double>& features) const override {
@@ -141,7 +139,7 @@ private:
     SplitInfo find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
     static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(const std::vector<DataPoint<int>>& data,
-            const std::vector<size_t>& indices, int feature_index, double threshold);
+            const std::vector<size_t>& indices, size_t feature_index, double threshold);
 
     [[nodiscard("Should be used to check is all same class")]]
     static bool all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices);
@@ -166,13 +164,13 @@ private:
     std::unique_ptr<Node<int>> build_tree(
         const std::vector<DataPoint<int>>& data,
         const std::vector<size_t>& indices,
-        int depth, size_t total_samples);
+        size_t depth, size_t total_samples);
 
     void cost_complexity_prune();
 public:
-    explicit DecisionTreeClassifier(int max_depth = 32,
-                          int min_samples_split = 5,
-                          int min_samples_leaf = 2,
+    explicit DecisionTreeClassifier(size_t max_depth = 32,
+                          size_t min_samples_split = 5,
+                          size_t min_samples_leaf = 2,
                           const std::string& string_criterion = "entropy",
                           double ccp_alpha = 0.0);
 

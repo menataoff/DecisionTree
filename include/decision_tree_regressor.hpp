@@ -13,8 +13,8 @@ protected:
     double mean_value;
     double variance;
 public:
-    RegressionNode(double node_error, int sample_count, double mean_value, double variance = 0.0) :
-    Node<double>(node_error, sample_count), mean_value(mean_value), variance(variance) {}
+    RegressionNode(double node_error_val, int sample_count_val, double mean_value_val, double variance_val = 0.0) :
+    Node<double>(node_error_val, sample_count_val), mean_value(mean_value_val), variance(variance_val) {}
 
     ~RegressionNode() override = default;
 
@@ -22,31 +22,31 @@ public:
     [[nodiscard("Should be used to get variance")]] double get_variance() const { return variance; }
 
     [[nodiscard("Should be used to predict value")]]
-    double predict(const std::vector<double>& features) const override {
+    double predict([[maybe_unused]]const std::vector<double>& features) const override {
         return mean_value;
     };
 };
 
 class RegressionLeafNode : public RegressionNode {
 public:
-    RegressionLeafNode(double node_error, int sample_count, double mean_value, double variance) :
-    RegressionNode(node_error, sample_count, mean_value, variance) {}
+    RegressionLeafNode(double node_error_val, int sample_count_val, double mean_value_val, double variance_val) :
+    RegressionNode(node_error_val, sample_count_val, mean_value_val, variance_val) {}
 };
 
 class RegressionInternalNode : public RegressionNode {
 private:
-    int feature_index;
+    size_t feature_index;
     double threshold;
     std::unique_ptr<RegressionNode> left_child;
     std::unique_ptr<RegressionNode> right_child;
 public:
-    RegressionInternalNode(double node_error, int sample_count,
-        double mean_value, double variance,
-        int feature_index, double threshold,
-        std::unique_ptr<RegressionNode> left_child, std::unique_ptr<RegressionNode> right_child) :
-    RegressionNode(node_error, sample_count, mean_value, variance),
-    feature_index(feature_index), threshold(threshold),
-    left_child(std::move(left_child)), right_child(std::move(right_child)) {}
+    RegressionInternalNode(double node_error_val, int sample_count_val,
+        double mean_value_val, double variance_val,
+        size_t feature_index_val, double threshold_val,
+        std::unique_ptr<RegressionNode> left_child_val, std::unique_ptr<RegressionNode> right_child_val) :
+    RegressionNode(node_error_val, sample_count_val, mean_value_val, variance_val),
+    feature_index(feature_index_val), threshold(threshold_val),
+    left_child(std::move(left_child_val)), right_child(std::move(right_child_val)) {}
 
     void set_left_child(std::unique_ptr<RegressionNode> new_child) {
         left_child = std::move(new_child);
@@ -63,7 +63,7 @@ public:
     RegressionNode* get_right_child() const { return right_child.get(); }
 
     [[nodiscard("Should be used to get feature index")]]
-    int get_feature_index() const { return feature_index; }
+    size_t get_feature_index() const { return feature_index; }
 
     [[nodiscard("Should be used to get threshold")]]
     double get_threshold() const { return threshold; }
@@ -103,7 +103,7 @@ private:
     static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(
         const std::vector<DataPoint<double>>& data,
         const std::vector<size_t>& indices,
-        int feature_index,
+        size_t feature_index,
         double threshold);
 
     static std::vector<double> extract_targets(
@@ -139,13 +139,13 @@ private:
     std::unique_ptr<Node<double>> build_tree(
         const std::vector<DataPoint<double>>& data,
         const std::vector<size_t>& indices,
-        int depth, size_t total_samples);
+        size_t depth, size_t total_samples);
 
     void cost_complexity_prune();
 public:
-    explicit DecisionTreeRegressor(int max_depth = 32,
-                          int min_samples_split = 5,
-                          int min_samples_leaf = 2,
+    explicit DecisionTreeRegressor(size_t max_depth = 32,
+                          size_t min_samples_split = 5,
+                          size_t min_samples_leaf = 2,
                           const std::string& string_criterion = "mse",
                           double ccp_alpha = 0.0);
     void fit(const std::vector<DataPoint<double>>& data);
