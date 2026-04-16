@@ -16,3 +16,21 @@ target_link_libraries(DecisionTree PRIVATE decision_tree_core)
 
 add_executable(TestingAI tests/testing_by_ai.cpp)
 target_link_libraries(TestingAI PRIVATE decision_tree_core)
+#if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang|MinGW")
+#    target_compile_options(TestingAI PRIVATE
+#            -Wall -Wextra -Wpedantic
+#            -Wconversion -Wsign-conversion
+#            -Wshadow -Wold-style-cast
+#            -Wunused -Wuninitialized
+#            -Wnull-dereference
+#            -Wdouble-promotion
+#            -Wformat=2
+#            -Wcast-align
+#            -Wcast-qual
+#            -Wmissing-include-dirs
+#            -Wredundant-decls
+#            -Wlogical-op
+#            -Wstrict-overflow=5
+#            -Werror                    # ← ЭТОТ ФЛАГ!
+#    )
+#endif()
