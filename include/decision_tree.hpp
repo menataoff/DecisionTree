@@ -66,13 +66,13 @@ class DecisionTree {
 protected:
     std::unique_ptr<Node<TargetType>> root;
     int max_depth;
-    int min_samples_split;
+    size_t min_samples_split;
     size_t min_samples_leaf;
     std::vector<double> feature_importances;
     double ccp_alpha;
 public:
     explicit DecisionTree(int max_depth = 32,
-                 int min_samples_split = 5,
+                 size_t min_samples_split = 5,
                  size_t min_samples_leaf = 2,
                  double ccp_alpha = 0.0) :
     max_depth(max_depth),

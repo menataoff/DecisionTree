@@ -169,7 +169,7 @@ private:
     void cost_complexity_prune();
 public:
     explicit DecisionTreeClassifier(int max_depth = 32,
-                          int min_samples_split = 5,
+                          size_t min_samples_split = 5,
                           size_t min_samples_leaf = 2,
                           const std::string& string_criterion = "entropy",
                           double ccp_alpha = 0.0);

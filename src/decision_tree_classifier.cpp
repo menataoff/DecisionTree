@@ -7,7 +7,7 @@
 
 
 DecisionTreeClassifier::DecisionTreeClassifier(int max_depth,
-                 int min_samples_split,
+                 size_t min_samples_split,
                  size_t min_samples_leaf,
                  const std::string& string_criterion,
                  double ccp_alpha)
@@ -135,7 +135,7 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
 
     if (indices.size() < 2) return best_split;
 
-    const int num_features = static_cast<int>(data[0].features.size());
+    const size_t num_features = data[0].features.size();
 
     for (size_t feature_idx = 0; feature_idx < num_features; ++feature_idx) {
         std::vector<size_t> sorted_indices = indices;

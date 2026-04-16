@@ -6,7 +6,7 @@
 #include <numeric>
 
 DecisionTreeRegressor::DecisionTreeRegressor(int max_depth,
-                 int min_samples_split,
+                 size_t min_samples_split,
                  size_t min_samples_leaf,
                  const std::string& string_criterion,
                  double ccp_alpha)
@@ -201,11 +201,11 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
             double right_quality = 0.0;
 
             if (criterion == RegressionSplitCriterion::MSE) {
-                double left_mean = left_sums / left_total;
-                left_quality = (left_sqsums / left_total) - (left_mean * left_mean);
+                double left_mean = left_sums / static_cast<double>(left_total);
+                left_quality = (left_sqsums / static_cast<double>(left_total)) - (left_mean * left_mean);
 
-                double right_mean = right_sums / right_total;
-                right_quality = (right_sqsums / right_total) - (right_mean * right_mean);
+                double right_mean = right_sums / static_cast<double>(right_total);
+                right_quality = (right_sqsums / static_cast<double>(right_total)) - (right_mean * right_mean);
             } else {
                 std::vector<size_t> left_indices(sorted_indices.begin(), sorted_indices.begin() + static_cast<ptrdiff_t>(i) + 1);
                 std::vector<size_t> right_indices(sorted_indices.begin() + static_cast<ptrdiff_t>(i) + 1, sorted_indices.end());
@@ -216,7 +216,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
                 right_quality = calculate_mae(right_targets);
             }
             size_t total = left_total + right_total;
-            double gain = parent_quality - (static_cast<double>(left_total) / total)*left_quality - (static_cast<double>(right_total) / total)*right_quality;
+            double gain = parent_quality - (static_cast<double>(left_total) / static_cast<double>(total))*left_quality - (static_cast<double>(right_total) / static_cast<double>(total))*right_quality;
 
             if (gain > best_split.information_gain) {
                 best_split.feature_index = feature_idx;
