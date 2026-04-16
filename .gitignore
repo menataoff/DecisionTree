@@ -3,3 +3,5 @@ build/
 out/
 *.exe
 .idea
+err.txt
+dif_*.txt
