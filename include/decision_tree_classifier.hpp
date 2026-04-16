@@ -14,10 +14,10 @@ protected:
     int majority_class;
     std::unordered_map<int, double> class_probabilities;
 public:
-    ClassificationNode(const std::unordered_map<int, double>& class_probabilities,
-                      int sample_count, double node_error)
-        : Node<int>(node_error, sample_count),
-          class_probabilities(class_probabilities)
+    ClassificationNode(const std::unordered_map<int, double>& class_probabilities_val,
+                      int sample_count_val, double node_error_val)
+        : Node<int>(node_error_val, sample_count_val),
+          class_probabilities(class_probabilities_val)
     {
 
         double max_prob = 0.0;
@@ -29,12 +29,12 @@ public:
         }
     }
 
-    ClassificationNode(int majority_class,
-                      const std::unordered_map<int, double>& class_probabilities,
-                      int sample_count, double node_error)
-        : Node<int>(node_error, sample_count),
-          majority_class(majority_class),
-          class_probabilities(class_probabilities) {}
+    ClassificationNode(int majority_class_val,
+                      const std::unordered_map<int, double>& class_probabilities_val,
+                      int sample_count_val, double node_error_val)
+        : Node<int>(node_error_val, sample_count_val),
+          majority_class(majority_class_val),
+          class_probabilities(class_probabilities_val) {}
 
     ~ClassificationNode() override = default;
 
@@ -54,9 +54,9 @@ public:
 
 class ClassificationLeafNode : public ClassificationNode {
 public:
-    ClassificationLeafNode(const std::unordered_map<int, double>& class_probabilities,
-                          const int sample_count, const double node_error)
-        : ClassificationNode(class_probabilities, sample_count, node_error) {}
+    ClassificationLeafNode(const std::unordered_map<int, double>& class_probabilities_val,
+                          const int sample_count_val, const double node_error_val)
+        : ClassificationNode(class_probabilities_val, sample_count_val, node_error_val) {}
 
     std::unordered_map<int, double> predict_proba([[maybe_unused]] const std::vector<double>& features) const override {
         return class_probabilities;
@@ -70,13 +70,13 @@ private:
     std::unique_ptr<ClassificationNode> left_child;
     std::unique_ptr<ClassificationNode> right_child;
 public:
-    ClassificationInternalNode(size_t feature_index, double threshold,
-        std::unique_ptr<ClassificationNode> left_child, std::unique_ptr<ClassificationNode> right_child,
-        int majority_class, const std::unordered_map<int, double>& class_probabilities,
-        int sample_count, double node_error) :
-    ClassificationNode(majority_class, class_probabilities, sample_count, node_error),
-    feature_index(feature_index), threshold(threshold),
-    left_child(std::move(left_child)), right_child(std::move(right_child)) {}
+    ClassificationInternalNode(size_t feature_index_val, double threshold_val,
+        std::unique_ptr<ClassificationNode> left_child_val, std::unique_ptr<ClassificationNode> right_child_val,
+        int majority_class_val, const std::unordered_map<int, double>& class_probabilities_val,
+        int sample_count_val, double node_error_val) :
+    ClassificationNode(majority_class_val, class_probabilities_val, sample_count_val, node_error_val),
+    feature_index(feature_index_val), threshold(threshold_val),
+    left_child(std::move(left_child_val)), right_child(std::move(right_child_val)) {}
 
     void set_left_child(std::unique_ptr<ClassificationNode> new_child) {
         left_child = std::move(new_child);

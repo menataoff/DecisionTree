@@ -13,8 +13,8 @@ protected:
     double mean_value;
     double variance;
 public:
-    RegressionNode(double node_error, int sample_count, double mean_value, double variance = 0.0) :
-    Node<double>(node_error, sample_count), mean_value(mean_value), variance(variance) {}
+    RegressionNode(double node_error_val, int sample_count_val, double mean_value_val, double variance_val = 0.0) :
+    Node<double>(node_error_val, sample_count_val), mean_value(mean_value_val), variance(variance_val) {}
 
     ~RegressionNode() override = default;
 
@@ -29,8 +29,8 @@ public:
 
 class RegressionLeafNode : public RegressionNode {
 public:
-    RegressionLeafNode(double node_error, int sample_count, double mean_value, double variance) :
-    RegressionNode(node_error, sample_count, mean_value, variance) {}
+    RegressionLeafNode(double node_error_val, int sample_count_val, double mean_value_val, double variance_val) :
+    RegressionNode(node_error_val, sample_count_val, mean_value_val, variance_val) {}
 };
 
 class RegressionInternalNode : public RegressionNode {
@@ -40,13 +40,13 @@ private:
     std::unique_ptr<RegressionNode> left_child;
     std::unique_ptr<RegressionNode> right_child;
 public:
-    RegressionInternalNode(double node_error, int sample_count,
-        double mean_value, double variance,
-        size_t feature_index, double threshold,
-        std::unique_ptr<RegressionNode> left_child, std::unique_ptr<RegressionNode> right_child) :
-    RegressionNode(node_error, sample_count, mean_value, variance),
-    feature_index(feature_index), threshold(threshold),
-    left_child(std::move(left_child)), right_child(std::move(right_child)) {}
+    RegressionInternalNode(double node_error_val, int sample_count_val,
+        double mean_value_val, double variance_val,
+        size_t feature_index_val, double threshold_val,
+        std::unique_ptr<RegressionNode> left_child_val, std::unique_ptr<RegressionNode> right_child_val) :
+    RegressionNode(node_error_val, sample_count_val, mean_value_val, variance_val),
+    feature_index(feature_index_val), threshold(threshold_val),
+    left_child(std::move(left_child_val)), right_child(std::move(right_child_val)) {}
 
     void set_left_child(std::unique_ptr<RegressionNode> new_child) {
         left_child = std::move(new_child);

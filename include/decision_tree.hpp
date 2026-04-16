@@ -10,8 +10,8 @@ struct DataPoint {
     std::vector<double> features;
     TargetType target;
 
-    DataPoint(const std::vector<double>& features, TargetType target)
-        : features(features), target(target) {}
+    DataPoint(const std::vector<double>& features_val, TargetType target_val)
+        : features(features_val), target(target_val) {}
 };
 
 template<typename TargetType>
@@ -21,7 +21,7 @@ protected:
     int sample_count;
 
 public:
-    Node(double node_error, int sample_count) : node_error(node_error), sample_count(sample_count) {}
+    Node(double node_error_val, int sample_count_val) : node_error(node_error_val), sample_count(sample_count_val) {}
 
     virtual ~Node() = default;
 
@@ -71,14 +71,14 @@ protected:
     std::vector<double> feature_importances;
     double ccp_alpha;
 public:
-    explicit DecisionTree(size_t max_depth = 32,
-                 size_t min_samples_split = 5,
-                 size_t min_samples_leaf = 2,
-                 double ccp_alpha = 0.0) :
-    max_depth(max_depth),
-    min_samples_split(min_samples_split),
-    min_samples_leaf(min_samples_leaf),
-    ccp_alpha(ccp_alpha) {}
+    explicit DecisionTree(size_t max_depth_val = 32,
+                 size_t min_samples_split_val = 5,
+                 size_t min_samples_leaf_val = 2,
+                 double ccp_alpha_val = 0.0) :
+    max_depth(max_depth_val),
+    min_samples_split(min_samples_split_val),
+    min_samples_leaf(min_samples_leaf_val),
+    ccp_alpha(ccp_alpha_val) {}
 
     virtual ~DecisionTree() = default;
 
