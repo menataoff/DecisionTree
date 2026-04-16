@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <numeric>
 
-DecisionTreeRegressor::DecisionTreeRegressor(int max_depth,
+DecisionTreeRegressor::DecisionTreeRegressor(size_t max_depth,
                  size_t min_samples_split,
                  size_t min_samples_leaf,
                  const std::string& string_criterion,
@@ -233,7 +233,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
 
 std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vector<DataPoint<double>>& data,
         const std::vector<size_t>& indices,
-        int depth, size_t total_samples) {
+        size_t depth, size_t total_samples) {
 
     std::vector<double> targets = extract_targets(data, indices);
     double node_value;

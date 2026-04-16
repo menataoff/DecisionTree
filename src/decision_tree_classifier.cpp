@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-DecisionTreeClassifier::DecisionTreeClassifier(int max_depth,
+DecisionTreeClassifier::DecisionTreeClassifier(size_t max_depth,
                  size_t min_samples_split,
                  size_t min_samples_leaf,
                  const std::string& string_criterion,
@@ -200,7 +200,7 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
 
 std::unique_ptr<Node<int>> DecisionTreeClassifier::build_tree(const std::vector<DataPoint<int>>& data,
         const std::vector<size_t>& indices,
-        const int depth, const size_t total_samples) {
+        size_t depth, size_t total_samples) {
 
     auto probabilities = calculate_probabilities(data, indices);
     const double impurity = calculate_impurity(calculate_class_counts(data, indices), indices.size());

@@ -65,13 +65,13 @@ template<typename TargetType>
 class DecisionTree {
 protected:
     std::unique_ptr<Node<TargetType>> root;
-    int max_depth;
+    size_t max_depth;
     size_t min_samples_split;
     size_t min_samples_leaf;
     std::vector<double> feature_importances;
     double ccp_alpha;
 public:
-    explicit DecisionTree(int max_depth = 32,
+    explicit DecisionTree(size_t max_depth = 32,
                  size_t min_samples_split = 5,
                  size_t min_samples_leaf = 2,
                  double ccp_alpha = 0.0) :

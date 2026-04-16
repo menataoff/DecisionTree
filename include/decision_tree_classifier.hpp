@@ -164,11 +164,11 @@ private:
     std::unique_ptr<Node<int>> build_tree(
         const std::vector<DataPoint<int>>& data,
         const std::vector<size_t>& indices,
-        int depth, size_t total_samples);
+        size_t depth, size_t total_samples);
 
     void cost_complexity_prune();
 public:
-    explicit DecisionTreeClassifier(int max_depth = 32,
+    explicit DecisionTreeClassifier(size_t max_depth = 32,
                           size_t min_samples_split = 5,
                           size_t min_samples_leaf = 2,
                           const std::string& string_criterion = "entropy",
