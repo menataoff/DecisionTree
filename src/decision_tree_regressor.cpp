@@ -4,6 +4,7 @@
 #include <limits>
 #include <stdexcept>
 #include <numeric>
+#include <iostream>
 
 DecisionTreeRegressor::DecisionTreeRegressor(size_t max_depth,
                  size_t min_samples_split,
@@ -257,14 +258,14 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
     auto best_split = find_best_split(data, indices);
 
     if (!best_split.feature_index || best_split.information_gain <= 0.0) {
-        return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
+        return std::make_unique<RegressionLeafNode>(node_error, indices.size(), node_value, node_quality);
     }
 
     auto left_indices = best_split.get_left_indices();
     auto right_indices = best_split.get_right_indices();
 
     if (left_indices.empty() || right_indices.empty() || left_indices.size() < min_samples_leaf || right_indices.size() < min_samples_leaf || best_split.information_gain <= 0.0) {
-        return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
+        return std::make_unique<RegressionLeafNode>(node_error, indices.size(), node_value, node_quality);
     }
 
     size_t feature_index = *best_split.feature_index;
@@ -296,8 +297,8 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         }
     }
 
-    auto left_child_ptr = build_tree(data, (left_indices), depth + 1, total_samples);
-    auto right_child_ptr = build_tree(data, (right_indices), depth + 1, total_samples);
+    auto left_child_ptr = build_tree(data, std::move(left_indices), depth + 1, total_samples);
+    auto right_child_ptr = build_tree(data, std::move(right_indices), depth + 1, total_samples);
 
     auto left_child = std::unique_ptr<RegressionNode>(
         dynamic_cast<RegressionNode*>(left_child_ptr.release()));
@@ -406,7 +407,7 @@ void DecisionTreeRegressor::prune_node_to_leaf(const RegressionInternalNode* nod
     double median_or_mean_value = node_to_prune->get_mean_value();
     double variance = node_to_prune->get_variance();
     //RegressionLeafNode(double mean_value, double variance, int sample_count, double node_error)
-    auto new_leaf = std::make_unique<RegressionLeafNode>(median_or_mean_value, variance, sample_count, node_error);
+    auto new_leaf = std::make_unique<RegressionLeafNode>(node_error, sample_count, median_or_mean_value, variance);
 
     if (parent != nullptr) {
         auto* parent_internal = dynamic_cast<RegressionInternalNode*>(parent);
