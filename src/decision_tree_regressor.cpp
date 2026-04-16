@@ -52,7 +52,8 @@ double DecisionTreeRegressor::calculate_median(const std::vector<double>& target
 
     size_t n = targets.size();
     std::vector<double> sorted = targets;
-    std::ranges::sort(sorted);
+    // NOLINTNEXTLINE
+    std::sort(sorted.begin(), sorted.end());
 
     double median = 0.0;
     if (n % 2 == 0) {
@@ -147,8 +148,8 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
     for (size_t feature_idx = 0; feature_idx < num_features; ++feature_idx) {
         std::vector<size_t> sorted_indices = indices;
 
-
-        std::ranges::sort(sorted_indices, [&](size_t i, size_t j) {
+        // NOLINTNEXTLINE
+        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
             return (data[i].features[feature_idx] < data[j].features[feature_idx]);
         });
 
@@ -515,9 +516,9 @@ void DecisionTreeRegressor::fit(const std::vector<DataPoint<double>>& data) {
     }
 
     if (summary_importance > 0.0) {
-        std::ranges::for_each(feature_importances, [summary_importance](double val) {
+        for (double& val : feature_importances) {
             val /= summary_importance;
-        });
+        }
     }
 
     if (ccp_alpha > 0.0) {
@@ -548,5 +549,5 @@ void DecisionTreeRegressor::set_ccp_alpha(double new_alpha) {
     ccp_alpha = new_alpha;
 }
 
-//TODO: перенести fit'ы, get_n_leaves, set_ccp_alpha и другое в общий класс
+//TODO: перенести fit'ы, get_n_leaves, set_ccp_alpha и другое в общий класс (главная проблема - логика узлов)
 

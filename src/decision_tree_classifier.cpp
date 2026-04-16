@@ -125,9 +125,11 @@ int DecisionTreeClassifier::get_majority_class_in_node(const std::vector<DataPoi
 bool DecisionTreeClassifier::all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) {
     if (indices.empty()) return true;
     int first_label = data[indices[0]].target;
-    return std::ranges::all_of(indices, [&](size_t idx) {
-        return data[idx].target == first_label;
-    });
+    // NOLINTNEXTLINE
+    for (size_t idx : indices) {
+        if (data[idx].target != first_label) return false;
+    }
+    return true;
 }
 
 SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const {
@@ -140,8 +142,8 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
     for (size_t feature_idx = 0; feature_idx < num_features; ++feature_idx) {
         std::vector<size_t> sorted_indices = indices;
 
-
-        std::ranges::sort(sorted_indices, [&](size_t i, size_t j) {
+        // NOLINTNEXTLINE
+        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
             return (data[i].features[feature_idx] < data[j].features[feature_idx]);
         });
 
@@ -412,9 +414,9 @@ void DecisionTreeClassifier::fit(const std::vector<DataPoint<int>>& data) {
     }
 
     if (summary_importance > 0.0) {
-        std::ranges::for_each(feature_importances, [summary_importance](double val) {
+        for (double& val : feature_importances) {
             val /= summary_importance;
-        });
+        }
     }
 
     if (ccp_alpha > 0.0) {
