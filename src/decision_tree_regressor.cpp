@@ -245,13 +245,13 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
     double node_quality = calculate_node_quality(targets);
     double node_error = (static_cast<double>(indices.size()) / static_cast<double>(total_samples)) * node_quality;
     if (node_quality < 1e-10) {  // почти нулевая дисперсия/MAE
-        return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
+        return std::make_unique<RegressionLeafNode>(node_error, indices.size(), node_value, node_quality);
     }
 
     if (indices.size() < min_samples_split ||
     indices.empty() ||
     depth >= max_depth) {
-        return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
+        return std::make_unique<RegressionLeafNode>(node_error, indices.size(), node_value, node_quality);
     }
 
     auto best_split = find_best_split(data, indices);
@@ -365,7 +365,7 @@ std::pair<Node<double>*, double> DecisionTreeRegressor::find_global_weakest_link
 
     if (auto* internal_node = dynamic_cast<RegressionInternalNode*>(node)) {
 
-        if (auto [R_Tt, T_t] = calculate_tree_error(node); T_t <= 1) {
+        if (auto [R_Tt, T_t] = calculate_tree_error(node); T_t > 1) {
             double R_t = node->get_node_error();
             if (const double alpha = (R_t - R_Tt) / (T_t - 1); (alpha >= 0 && alpha < current_min_alpha)) {
                 current_min_alpha = alpha;
