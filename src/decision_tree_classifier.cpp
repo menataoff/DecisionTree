@@ -235,8 +235,8 @@ std::unique_ptr<Node<int>> DecisionTreeClassifier::build_tree(const std::vector<
         feature_importances[feature_index] += weight * best_split.information_gain;
     }
 
-    auto left_child_ptr = build_tree(data, (left_indices), depth + 1, total_samples);
-    auto right_child_ptr = build_tree(data, (right_indices), depth + 1, total_samples);
+    auto left_child_ptr = build_tree(data, left_indices, depth + 1, total_samples);
+    auto right_child_ptr = build_tree(data, right_indices, depth + 1, total_samples);
 
     auto left_child = std::unique_ptr<ClassificationNode>(
         dynamic_cast<ClassificationNode*>(left_child_ptr.release()));

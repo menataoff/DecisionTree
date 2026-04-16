@@ -4,7 +4,6 @@
 #include <limits>
 #include <stdexcept>
 #include <numeric>
-#include <iostream>
 
 DecisionTreeRegressor::DecisionTreeRegressor(size_t max_depth,
                  size_t min_samples_split,
@@ -297,8 +296,8 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         }
     }
 
-    auto left_child_ptr = build_tree(data, std::move(left_indices), depth + 1, total_samples);
-    auto right_child_ptr = build_tree(data, std::move(right_indices), depth + 1, total_samples);
+    auto left_child_ptr = build_tree(data, left_indices, depth + 1, total_samples);
+    auto right_child_ptr = build_tree(data, right_indices, depth + 1, total_samples);
 
     auto left_child = std::unique_ptr<RegressionNode>(
         dynamic_cast<RegressionNode*>(left_child_ptr.release()));
