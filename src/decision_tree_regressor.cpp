@@ -85,7 +85,7 @@ std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeRegressor::split
     left_idx.reserve(indices.size());
     right_idx.reserve(indices.size());
 
-    for (const size_t idx : indices) {
+    for (size_t idx : indices) {
         if (data[idx].features[feature_index] <= threshold) {
             left_idx.push_back(idx);
         } else {
@@ -101,7 +101,7 @@ std::vector<double> DecisionTreeRegressor::extract_targets(
     const std::vector<size_t> &indices) {
     std::vector<double> targets;
     targets.reserve(indices.size());
-    for (const size_t idx : indices) {
+    for (size_t idx : indices) {
         targets.push_back(data[idx].target);
     }
     return targets;
@@ -367,7 +367,7 @@ std::pair<Node<double>*, double> DecisionTreeRegressor::find_global_weakest_link
 
         if (auto [R_Tt, T_t] = calculate_tree_error(node); T_t > 1) {
             double R_t = node->get_node_error();
-            if (const double alpha = (R_t - R_Tt) / (T_t - 1); (alpha >= 0 && alpha < current_min_alpha)) {
+            if (double alpha = (R_t - R_Tt) / (T_t - 1); (alpha >= 0 && alpha < current_min_alpha)) {
                 current_min_alpha = alpha;
                 current_best_node = node;
             }
@@ -510,12 +510,12 @@ void DecisionTreeRegressor::fit(const std::vector<DataPoint<double>>& data) {
     root = build_tree(data, indices, 0, data.size());
 
     double summary_importance = 0.0;
-    for (const auto& importance : feature_importances) {
+    for (double importance : feature_importances) {
         summary_importance += importance;
     }
 
     if (summary_importance > 0.0) {
-        std::ranges::for_each(feature_importances, [summary_importance](double& val) {
+        std::ranges::for_each(feature_importances, [summary_importance](double val) {
             val /= summary_importance;
         });
     }
@@ -544,7 +544,7 @@ int DecisionTreeRegressor::get_n_leaves() const {
     return count_subtree_leaves(root.get());
 }
 
-void DecisionTreeRegressor::set_ccp_alpha(const double new_alpha) {
+void DecisionTreeRegressor::set_ccp_alpha(double new_alpha) {
     ccp_alpha = new_alpha;
 }
 

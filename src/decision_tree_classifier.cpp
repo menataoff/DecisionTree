@@ -22,22 +22,22 @@ DecisionTreeClassifier::DecisionTreeClassifier(size_t max_depth,
 }
 
 double DecisionTreeClassifier::calculate_impurity(
-    const std::unordered_map<int, int>& class_counts, const size_t total) const
+    const std::unordered_map<int, int>& class_counts, size_t total) const
 {
     if (total == 0) return 0.0;
 
     if (criterion == ClassificationSplitCriterion::ENTROPY) {
         double entropy = 0.0;
-        for (const auto& count : class_counts | std::views::values) {
-            if (const double p = static_cast<double>(count) / static_cast<double>(total); p > 0.0) {
+        for (int count : class_counts | std::views::values) {
+            if (double p = static_cast<double>(count) / static_cast<double>(total); p > 0.0) {
                 entropy -= p * std::log2(p);
             }
         }
         return entropy;
     } else {
         double gini = 1.0;
-        for (const auto& count : class_counts | std::views::values) {
-            const double p = static_cast<double>(count) / static_cast<double>(total);
+        for (int count : class_counts | std::views::values) {
+            double p = static_cast<double>(count) / static_cast<double>(total);
             gini -= p*p;
         }
         return gini;
@@ -80,7 +80,7 @@ std::unordered_map<int, int> DecisionTreeClassifier::calculate_class_counts(
         const std::vector<size_t>& indices) {
 
     std::unordered_map<int, int> counts;
-    for (const size_t idx : indices) {
+    for (size_t idx : indices) {
         counts[data[idx].target]++;
     }
     return counts;
@@ -106,7 +106,7 @@ int DecisionTreeClassifier::get_majority_class_in_node(const std::vector<DataPoi
 
     std::unordered_map<int, int> class_counts;
 
-    for (const size_t idx : indices) {
+    for (size_t idx : indices) {
         int label = data[idx].target;
         class_counts[label]++;
     }
@@ -124,8 +124,8 @@ int DecisionTreeClassifier::get_majority_class_in_node(const std::vector<DataPoi
 
 bool DecisionTreeClassifier::all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) {
     if (indices.empty()) return true;
-    const int first_label = data[indices[0]].target;
-    return std::ranges::all_of(indices, [&](const size_t idx) {
+    int first_label = data[indices[0]].target;
+    return std::ranges::all_of(indices, [&](size_t idx) {
         return data[idx].target == first_label;
     });
 }
@@ -135,13 +135,13 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
 
     if (indices.size() < 2) return best_split;
 
-    const size_t num_features = data[0].features.size();
+    size_t num_features = data[0].features.size();
 
     for (size_t feature_idx = 0; feature_idx < num_features; ++feature_idx) {
         std::vector<size_t> sorted_indices = indices;
 
 
-        std::ranges::sort(sorted_indices, [&](const size_t i, const size_t j) {
+        std::ranges::sort(sorted_indices, [&](size_t i, size_t j) {
             return (data[i].features[feature_idx] < data[j].features[feature_idx]);
         });
 
@@ -149,7 +149,7 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
         std::unordered_map<int, int> left_counts;
         std::unordered_map<int, int> right_counts;
 
-        for (const size_t idx : sorted_indices) {
+        for (size_t idx : sorted_indices) {
             right_counts[data[idx].target]++;
         }
 
@@ -157,8 +157,8 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
         size_t right_total = sorted_indices.size();
 
         for (size_t i = 0; i < sorted_indices.size()-1; ++i) {
-            const size_t current_idx = sorted_indices[i];
-            const size_t next_idx = sorted_indices[i+1];
+            size_t current_idx = sorted_indices[i];
+            size_t next_idx = sorted_indices[i+1];
             int label = data[current_idx].target;
 
             left_counts[label]++;
@@ -174,14 +174,14 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
                 continue;
             }
 
-            const double threshold = (data[current_idx].features[feature_idx] + data[next_idx].features[feature_idx])/2.0;
+            double threshold = (data[current_idx].features[feature_idx] + data[next_idx].features[feature_idx])/2.0;
 
-            const double left_impurity = calculate_impurity(left_counts, left_total);
-            const double right_impurity = calculate_impurity(right_counts, right_total);
+            double left_impurity = calculate_impurity(left_counts, left_total);
+            double right_impurity = calculate_impurity(right_counts, right_total);
             auto parent_counts = merge_to_parent(left_counts, right_counts);
-            const size_t total = left_total + right_total;
+            size_t total = left_total + right_total;
 
-            const double gain = calculate_impurity(parent_counts, total) -
+            double gain = calculate_impurity(parent_counts, total) -
                 ((static_cast<double>(left_total)/static_cast<double>(total))*left_impurity +
                 (static_cast<double>(right_total)/static_cast<double>(total))*right_impurity);
 
@@ -203,7 +203,7 @@ std::unique_ptr<Node<int>> DecisionTreeClassifier::build_tree(const std::vector<
         size_t depth, size_t total_samples) {
 
     auto probabilities = calculate_probabilities(data, indices);
-    const double impurity = calculate_impurity(calculate_class_counts(data, indices), indices.size());
+    double impurity = calculate_impurity(calculate_class_counts(data, indices), indices.size());
     double node_error = (static_cast<double>(indices.size()) / static_cast<double>(total_samples)) * impurity;
     int majority_class = get_majority_class_in_node(data, indices);
 
@@ -231,7 +231,7 @@ std::unique_ptr<Node<int>> DecisionTreeClassifier::build_tree(const std::vector<
     }
 
     if  (!feature_importances.empty()) {
-        const double weight = static_cast<double>(indices.size()) / static_cast<double>(total_samples);
+        double weight = static_cast<double>(indices.size()) / static_cast<double>(total_samples);
         feature_importances[feature_index] += weight * best_split.information_gain;
     }
 
@@ -332,8 +332,8 @@ std::pair<Node<int>*, double> DecisionTreeClassifier::find_global_weakest_link(
     if (auto* internal_node = dynamic_cast<ClassificationInternalNode*>(node)) {
 
         if (auto [R_Tt, T_t] = calculate_tree_error(node); T_t > 1) {
-            const double R_t = node->get_node_error();
-            if (const double alpha = (R_t - R_Tt) / (T_t - 1); alpha >= 0 && alpha < current_min_alpha) {
+            double R_t = node->get_node_error();
+            if (double alpha = (R_t - R_Tt) / (T_t - 1); alpha >= 0 && alpha < current_min_alpha) {
                 current_min_alpha = alpha;
                 current_best_node = node;
             }
@@ -407,12 +407,12 @@ void DecisionTreeClassifier::fit(const std::vector<DataPoint<int>>& data) {
     root = build_tree(data, indices, 0, data.size());
 
     double summary_importance = 0.0;
-    for (const auto& importance : feature_importances) {
+    for (double importance : feature_importances) {
         summary_importance += importance;
     }
 
     if (summary_importance > 0.0) {
-        std::ranges::for_each(feature_importances, [summary_importance](double& val) {
+        std::ranges::for_each(feature_importances, [summary_importance](double val) {
             val /= summary_importance;
         });
     }
@@ -441,7 +441,7 @@ int DecisionTreeClassifier::get_n_leaves() const {
     return count_subtree_leaves(root.get());
 }
 
-void DecisionTreeClassifier::set_ccp_alpha(const double new_alpha) {
+void DecisionTreeClassifier::set_ccp_alpha(double new_alpha) {
     ccp_alpha = new_alpha;
 }
 
