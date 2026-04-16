@@ -78,7 +78,7 @@ double DecisionTreeRegressor::calculate_mae(const std::vector<double>& targets) 
 
 std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeRegressor::split_data(
     const std::vector<DataPoint<double>>& data,
-    const std::vector<size_t>& indices, int feature_index, double threshold) {
+    const std::vector<size_t>& indices, size_t feature_index, double threshold) {
 
     std::vector<size_t> left_idx;
     std::vector<size_t> right_idx;
@@ -219,7 +219,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
             double gain = parent_quality - (static_cast<double>(left_total) / total)*left_quality - (static_cast<double>(right_total) / total)*right_quality;
 
             if (gain > best_split.information_gain) {
-                best_split.feature_index = static_cast<int>(feature_idx);
+                best_split.feature_index = feature_idx;
                 best_split.threshold = threshold;
                 best_split.information_gain = gain;
 
@@ -256,7 +256,7 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
 
     auto best_split = find_best_split(data, indices);
 
-    if (best_split.feature_index < 0 || best_split.information_gain <= 0.0) {
+    if (!best_split.feature_index || best_split.information_gain <= 0.0) {
         return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
     }
 
@@ -267,7 +267,7 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
     }
 
-    int feature_index = best_split.feature_index;
+    size_t feature_index = *best_split.feature_index;
     double threshold = best_split.threshold;
 
     if (feature_importances.empty() && total_samples > 0) {
@@ -502,7 +502,7 @@ void DecisionTreeRegressor::fit(const std::vector<DataPoint<double>>& data) {
     }
 
     std::vector<size_t> indices(data.size());
-    for (int i = 0; i < data.size(); ++i) {
+    for (size_t i = 0; i < data.size(); ++i) {
         indices[i] = i;
     }
 

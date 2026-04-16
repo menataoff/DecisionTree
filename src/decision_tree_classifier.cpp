@@ -59,7 +59,7 @@ std::unordered_map<int, int> DecisionTreeClassifier::merge_to_parent(
 
 std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeClassifier::split_data(
     const std::vector<DataPoint<int>>& data,
-    const std::vector<size_t>& indices, int feature_index, double threshold) {
+    const std::vector<size_t>& indices, size_t feature_index, double threshold) {
 
     std::vector<size_t> left_idx;
     std::vector<size_t> right_idx;
@@ -186,7 +186,7 @@ SplitInfo DecisionTreeClassifier::find_best_split(const std::vector<DataPoint<in
                 (static_cast<double>(right_total)/static_cast<double>(total))*right_impurity);
 
             if (gain > best_split.information_gain) {
-                best_split.feature_index = static_cast<int>(feature_idx);
+                best_split.feature_index = feature_idx;
                 best_split.threshold = threshold;
                 best_split.information_gain = gain;
 
@@ -223,7 +223,7 @@ std::unique_ptr<Node<int>> DecisionTreeClassifier::build_tree(const std::vector<
         return std::make_unique<ClassificationLeafNode>(probabilities, indices.size(), node_error);
     }
 
-    int feature_index = best_split.feature_index;
+    size_t feature_index = *best_split.feature_index;
     double threshold = best_split.threshold;
 
     if (feature_importances.empty() && total_samples > 0) {

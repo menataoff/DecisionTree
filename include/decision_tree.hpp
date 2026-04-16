@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <optional>
 
 template<typename TargetType>
 struct DataPoint {
@@ -24,8 +25,8 @@ public:
 
     virtual ~Node() = default;
 
-    [[nodiscard("Should be used to get proba")]] virtual std::unordered_map<int, double> predict_proba(
-        const std::vector<double>& features) const
+    [[nodiscard("Should be used to get proba")]]
+    virtual std::unordered_map<int, double> predict_proba(const std::vector<double>& features) const
     {
         throw std::runtime_error("predict_proba not supported for this node type");
     }
@@ -37,25 +38,27 @@ public:
 };
 
 struct SplitInfo {
-    int feature_index;
+    std::optional<size_t> feature_index;
     double threshold;
     double information_gain;
     size_t split_position;
     std::vector<size_t> sorted_indices;
 
-    [[nodiscard("Should be uded to get left indices")]] std::vector<size_t> get_left_indices() const {
+    [[nodiscard("Should be uded to get left indices")]]
+    std::vector<size_t> get_left_indices() const {
         return {
         sorted_indices.begin(),
         sorted_indices.begin() + static_cast<ptrdiff_t>(split_position) + 1};
     }
 
-    [[nodiscard("Should be uded to get right indices")]] std::vector<size_t> get_right_indices() const {
+    [[nodiscard("Should be uded to get right indices")]]
+    std::vector<size_t> get_right_indices() const {
         return {
         sorted_indices.begin() + static_cast<ptrdiff_t>(split_position) + 1,
         sorted_indices.end()};
     }
 
-    SplitInfo() : feature_index(-1), threshold(0.0), information_gain(-1.0), split_position(0) {}
+    SplitInfo() : feature_index(std::nullopt), threshold(0.0), information_gain(-1.0), split_position(0) {}
 };
 
 template<typename TargetType>

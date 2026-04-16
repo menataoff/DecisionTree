@@ -48,7 +48,7 @@ public:
     }
 
     // Базовый predict (можно переопределить)
-    int predict(const std::vector<double>& features) const override {
+    int predict([[maybe_unused]]const std::vector<double>& features) const override {
         return majority_class;
     }
 };
@@ -59,20 +59,19 @@ public:
                           const int sample_count, const double node_error)
         : ClassificationNode(class_probabilities, sample_count, node_error) {}
 
-    std::unordered_map<int, double> predict_proba(
-        const std::vector<double>& features) const override {
+    std::unordered_map<int, double> predict_proba(const std::vector<double>& features) const override {
         return class_probabilities;
     }
 };
 
 class ClassificationInternalNode : public ClassificationNode {
 private:
-    int feature_index;
+    size_t feature_index;
     double threshold;
     std::unique_ptr<ClassificationNode> left_child;
     std::unique_ptr<ClassificationNode> right_child;
 public:
-    ClassificationInternalNode(int feature_index, double threshold,
+    ClassificationInternalNode(size_t feature_index, double threshold,
         std::unique_ptr<ClassificationNode> left_child, std::unique_ptr<ClassificationNode> right_child,
         int majority_class, const std::unordered_map<int, double>& class_probabilities,
         int sample_count, double node_error) :
@@ -90,7 +89,7 @@ public:
 
     ClassificationNode* get_left_child() const { return left_child.get(); }
     ClassificationNode* get_right_child() const { return right_child.get(); }
-    int get_feature_index() const {return feature_index;}
+    size_t get_feature_index() const {return feature_index;}
     double get_threshold() const {return threshold;}
 
     int predict(const std::vector<double>& features) const override {
@@ -141,7 +140,7 @@ private:
     SplitInfo find_best_split(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices) const;
 
     static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(const std::vector<DataPoint<int>>& data,
-            const std::vector<size_t>& indices, int feature_index, double threshold);
+            const std::vector<size_t>& indices, size_t feature_index, double threshold);
 
     [[nodiscard("Should be used to check is all same class")]]
     static bool all_same_class(const std::vector<DataPoint<int>>& data, const std::vector<size_t>& indices);

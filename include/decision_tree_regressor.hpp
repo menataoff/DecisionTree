@@ -22,7 +22,7 @@ public:
     [[nodiscard("Should be used to get variance")]] double get_variance() const { return variance; }
 
     [[nodiscard("Should be used to predict value")]]
-    double predict(const std::vector<double>& features) const override {
+    double predict([[maybe_unused]]const std::vector<double>& features) const override {
         return mean_value;
     };
 };
@@ -35,14 +35,14 @@ public:
 
 class RegressionInternalNode : public RegressionNode {
 private:
-    int feature_index;
+    size_t feature_index;
     double threshold;
     std::unique_ptr<RegressionNode> left_child;
     std::unique_ptr<RegressionNode> right_child;
 public:
     RegressionInternalNode(double node_error, int sample_count,
         double mean_value, double variance,
-        int feature_index, double threshold,
+        size_t feature_index, double threshold,
         std::unique_ptr<RegressionNode> left_child, std::unique_ptr<RegressionNode> right_child) :
     RegressionNode(node_error, sample_count, mean_value, variance),
     feature_index(feature_index), threshold(threshold),
@@ -63,7 +63,7 @@ public:
     RegressionNode* get_right_child() const { return right_child.get(); }
 
     [[nodiscard("Should be used to get feature index")]]
-    int get_feature_index() const { return feature_index; }
+    size_t get_feature_index() const { return feature_index; }
 
     [[nodiscard("Should be used to get threshold")]]
     double get_threshold() const { return threshold; }
@@ -103,7 +103,7 @@ private:
     static std::pair<std::vector<size_t>, std::vector<size_t>> split_data(
         const std::vector<DataPoint<double>>& data,
         const std::vector<size_t>& indices,
-        int feature_index,
+        size_t feature_index,
         double threshold);
 
     static std::vector<double> extract_targets(
