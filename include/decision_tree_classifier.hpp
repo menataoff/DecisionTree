@@ -38,8 +38,7 @@ public:
 
     ~ClassificationNode() override = default;
 
-    std::unordered_map<int, double> predict_proba(
-        const std::vector<double>& features) const override = 0;
+    std::unordered_map<int, double> predict_proba([[maybe_unused]]const std::vector<double>& features) const override = 0;
 
     // Геттеры
     int get_majority_class() const { return majority_class; }
@@ -59,7 +58,7 @@ public:
                           const int sample_count, const double node_error)
         : ClassificationNode(class_probabilities, sample_count, node_error) {}
 
-    std::unordered_map<int, double> predict_proba(const std::vector<double>& features) const override {
+    std::unordered_map<int, double> predict_proba([[maybe_unused]] const std::vector<double>& features) const override {
         return class_probabilities;
     }
 };
@@ -171,7 +170,7 @@ private:
 public:
     explicit DecisionTreeClassifier(int max_depth = 32,
                           int min_samples_split = 5,
-                          int min_samples_leaf = 2,
+                          size_t min_samples_leaf = 2,
                           const std::string& string_criterion = "entropy",
                           double ccp_alpha = 0.0);
 

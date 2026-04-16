@@ -26,8 +26,8 @@ public:
     virtual ~Node() = default;
 
     [[nodiscard("Should be used to get proba")]]
-    virtual std::unordered_map<int, double> predict_proba(const std::vector<double>& features) const
-    {
+    virtual std::unordered_map<int, double> predict_proba(
+    [[maybe_unused]] const std::vector<double>& features) const {
         throw std::runtime_error("predict_proba not supported for this node type");
     }
 
@@ -67,13 +67,13 @@ protected:
     std::unique_ptr<Node<TargetType>> root;
     int max_depth;
     int min_samples_split;
-    int min_samples_leaf;
+    size_t min_samples_leaf;
     std::vector<double> feature_importances;
     double ccp_alpha;
 public:
     explicit DecisionTree(int max_depth = 32,
                  int min_samples_split = 5,
-                 int min_samples_leaf = 2,
+                 size_t min_samples_leaf = 2,
                  double ccp_alpha = 0.0) :
     max_depth(max_depth),
     min_samples_split(min_samples_split),

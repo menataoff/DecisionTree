@@ -7,7 +7,7 @@
 
 DecisionTreeRegressor::DecisionTreeRegressor(int max_depth,
                  int min_samples_split,
-                 int min_samples_leaf,
+                 size_t min_samples_leaf,
                  const std::string& string_criterion,
                  double ccp_alpha)
         : DecisionTree<double>(max_depth, min_samples_split, min_samples_leaf, ccp_alpha) {
@@ -170,8 +170,8 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
             }
         }
 
-        int left_total = 0;
-        int right_total = static_cast<int>(sorted_indices.size());
+        size_t left_total = 0;
+        size_t right_total = sorted_indices.size();
 
         for (size_t i = 0; i < sorted_indices.size()-1; ++i) {
             size_t current_idx = sorted_indices[i];
@@ -215,7 +215,7 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
                 left_quality = calculate_mae(left_targets);
                 right_quality = calculate_mae(right_targets);
             }
-            int total = left_total + right_total;
+            size_t total = left_total + right_total;
             double gain = parent_quality - (static_cast<double>(left_total) / total)*left_quality - (static_cast<double>(right_total) / total)*right_quality;
 
             if (gain > best_split.information_gain) {

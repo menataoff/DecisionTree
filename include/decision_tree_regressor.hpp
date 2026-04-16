@@ -145,7 +145,7 @@ private:
 public:
     explicit DecisionTreeRegressor(int max_depth = 32,
                           int min_samples_split = 5,
-                          int min_samples_leaf = 2,
+                          size_t min_samples_leaf = 2,
                           const std::string& string_criterion = "mse",
                           double ccp_alpha = 0.0);
     void fit(const std::vector<DataPoint<double>>& data);

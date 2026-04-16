@@ -8,7 +8,7 @@
 
 DecisionTreeClassifier::DecisionTreeClassifier(int max_depth,
                  int min_samples_split,
-                 int min_samples_leaf,
+                 size_t min_samples_leaf,
                  const std::string& string_criterion,
                  double ccp_alpha)
         : DecisionTree<int>(max_depth, min_samples_split, min_samples_leaf, ccp_alpha) {
