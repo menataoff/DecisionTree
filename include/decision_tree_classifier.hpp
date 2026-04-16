@@ -47,7 +47,7 @@ public:
     }
 
     // Базовый predict (можно переопределить)
-    int predict([[maybe_unused]]const std::vector<double>& features) const override {
+    int predict([[maybe_unused]] const std::vector<double>& features) const override {
         return majority_class;
     }
 };
@@ -55,7 +55,7 @@ public:
 class ClassificationLeafNode : public ClassificationNode {
 public:
     ClassificationLeafNode(const std::unordered_map<int, double>& class_probabilities_val,
-                          const int sample_count_val, const double node_error_val)
+                          int sample_count_val, double node_error_val)
         : ClassificationNode(class_probabilities_val, sample_count_val, node_error_val) {}
 
     std::unordered_map<int, double> predict_proba([[maybe_unused]] const std::vector<double>& features) const override {

@@ -52,7 +52,8 @@ double DecisionTreeRegressor::calculate_median(const std::vector<double>& target
 
     size_t n = targets.size();
     std::vector<double> sorted = targets;
-    std::ranges::sort(sorted);
+    // NOLINTNEXTLINE
+    std::sort(sorted.begin(), sorted.end());
 
     double median = 0.0;
     if (n % 2 == 0) {
@@ -85,7 +86,7 @@ std::pair<std::vector<size_t>, std::vector<size_t>> DecisionTreeRegressor::split
     left_idx.reserve(indices.size());
     right_idx.reserve(indices.size());
 
-    for (const size_t idx : indices) {
+    for (size_t idx : indices) {
         if (data[idx].features[feature_index] <= threshold) {
             left_idx.push_back(idx);
         } else {
@@ -101,7 +102,7 @@ std::vector<double> DecisionTreeRegressor::extract_targets(
     const std::vector<size_t> &indices) {
     std::vector<double> targets;
     targets.reserve(indices.size());
-    for (const size_t idx : indices) {
+    for (size_t idx : indices) {
         targets.push_back(data[idx].target);
     }
     return targets;
@@ -147,8 +148,8 @@ SplitInfo DecisionTreeRegressor::find_best_split(const std::vector<DataPoint<dou
     for (size_t feature_idx = 0; feature_idx < num_features; ++feature_idx) {
         std::vector<size_t> sorted_indices = indices;
 
-
-        std::ranges::sort(sorted_indices, [&](size_t i, size_t j) {
+        // NOLINTNEXTLINE
+        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i, size_t j) {
             return (data[i].features[feature_idx] < data[j].features[feature_idx]);
         });
 
@@ -257,14 +258,14 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
     auto best_split = find_best_split(data, indices);
 
     if (!best_split.feature_index || best_split.information_gain <= 0.0) {
-        return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
+        return std::make_unique<RegressionLeafNode>(node_error, indices.size(), node_value, node_quality);
     }
 
     auto left_indices = best_split.get_left_indices();
     auto right_indices = best_split.get_right_indices();
 
     if (left_indices.empty() || right_indices.empty() || left_indices.size() < min_samples_leaf || right_indices.size() < min_samples_leaf || best_split.information_gain <= 0.0) {
-        return std::make_unique<RegressionLeafNode>(node_value, node_quality, indices.size(), node_error);
+        return std::make_unique<RegressionLeafNode>(node_error, indices.size(), node_value, node_quality);
     }
 
     size_t feature_index = *best_split.feature_index;
@@ -296,8 +297,8 @@ std::unique_ptr<Node<double>> DecisionTreeRegressor::build_tree(const std::vecto
         }
     }
 
-    auto left_child_ptr = build_tree(data, (left_indices), depth + 1, total_samples);
-    auto right_child_ptr = build_tree(data, (right_indices), depth + 1, total_samples);
+    auto left_child_ptr = build_tree(data, left_indices, depth + 1, total_samples);
+    auto right_child_ptr = build_tree(data, right_indices, depth + 1, total_samples);
 
     auto left_child = std::unique_ptr<RegressionNode>(
         dynamic_cast<RegressionNode*>(left_child_ptr.release()));
@@ -367,7 +368,7 @@ std::pair<Node<double>*, double> DecisionTreeRegressor::find_global_weakest_link
 
         if (auto [R_Tt, T_t] = calculate_tree_error(node); T_t > 1) {
             double R_t = node->get_node_error();
-            if (const double alpha = (R_t - R_Tt) / (T_t - 1); (alpha >= 0 && alpha < current_min_alpha)) {
+            if (double alpha = (R_t - R_Tt) / (T_t - 1); (alpha >= 0 && alpha < current_min_alpha)) {
                 current_min_alpha = alpha;
                 current_best_node = node;
             }
@@ -406,7 +407,7 @@ void DecisionTreeRegressor::prune_node_to_leaf(const RegressionInternalNode* nod
     double median_or_mean_value = node_to_prune->get_mean_value();
     double variance = node_to_prune->get_variance();
     //RegressionLeafNode(double mean_value, double variance, int sample_count, double node_error)
-    auto new_leaf = std::make_unique<RegressionLeafNode>(median_or_mean_value, variance, sample_count, node_error);
+    auto new_leaf = std::make_unique<RegressionLeafNode>(node_error, sample_count, median_or_mean_value, variance);
 
     if (parent != nullptr) {
         auto* parent_internal = dynamic_cast<RegressionInternalNode*>(parent);
@@ -510,14 +511,14 @@ void DecisionTreeRegressor::fit(const std::vector<DataPoint<double>>& data) {
     root = build_tree(data, indices, 0, data.size());
 
     double summary_importance = 0.0;
-    for (const auto& importance : feature_importances) {
+    for (double importance : feature_importances) {
         summary_importance += importance;
     }
 
     if (summary_importance > 0.0) {
-        std::ranges::for_each(feature_importances, [summary_importance](double& val) {
+        for (double& val : feature_importances) {
             val /= summary_importance;
-        });
+        }
     }
 
     if (ccp_alpha > 0.0) {
@@ -544,9 +545,9 @@ int DecisionTreeRegressor::get_n_leaves() const {
     return count_subtree_leaves(root.get());
 }
 
-void DecisionTreeRegressor::set_ccp_alpha(const double new_alpha) {
+void DecisionTreeRegressor::set_ccp_alpha(double new_alpha) {
     ccp_alpha = new_alpha;
 }
 
-//TODO: перенести fit'ы, get_n_leaves, set_ccp_alpha и другое в общий класс
+//TODO: перенести fit'ы, get_n_leaves, set_ccp_alpha и другое в общий класс (главная проблема - логика узлов)
 
